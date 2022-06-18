@@ -22,7 +22,6 @@ class List extends React.Component{
     addItem = item => {
         item.preventDefault()
         const newItem = this.state.pendingItem
-        console.log(newItem.key)
         if(newItem.text !== ""){
             const newItems = [...this.state.tasks, newItem]
             this.setState({

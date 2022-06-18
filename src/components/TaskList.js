@@ -1,4 +1,4 @@
-import {ReactDOM, Component} from 'react'
+import {Component, createRef} from 'react'
 import {FaEdit} from 'react-icons/fa'
 import {BiTrash} from 'react-icons/bi'
 
@@ -6,6 +6,7 @@ import {BiTrash} from 'react-icons/bi'
 class Task extends Component{
     constructor(props){
         super(props)
+        this.ref = createRef();
 
         this.state = {
             taskText: this.props.task,
@@ -14,12 +15,16 @@ class Task extends Component{
         }
     }
 
+    componentDidUpdate() {
+        if(this.ref.current != null)
+            this.ref.current.focus()
+    }
+
     updateTask = event => {
         this.setState({
             taskText: event.target.value,
-            taskBody: <form onSubmit={this.finishEdit}><input value={event.target.value} onChange={this.updateTask} id={this.props.id}/></form>
+            taskBody: <form onSubmit={this.finishEdit}><input ref={this.ref} value={event.target.value} onChange={this.updateTask} id={this.props.id}/></form>
         })
-
     }
 
     completeTask = event => {
@@ -35,7 +40,7 @@ class Task extends Component{
     }
 
     startEdit = event => {
-        var edit = <form onSubmit={this.finishEdit}><input value={this.state.taskText} onChange={this.updateTask} id={this.props.id}/></form>
+        var edit = <form onSubmit={this.finishEdit}><input ref={this.ref} value={this.state.taskText} onChange={this.updateTask} id={this.props.id}/></form>
         this.setState({
             taskBody: edit
         })
