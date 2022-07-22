@@ -23,6 +23,7 @@
     padding: .5em;
     border: 1px solid #ccc;
     border-radius: .5em;
+    width: 40%;
 }
 
 .list-main h1{
@@ -36,6 +37,23 @@ form > * {
     font-size: medium;
 }
 
+.list-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: .5em;
+}
+
+.header-buttons {
+    display: none;
+}
+
+.list-header:hover .header-buttons {
+    display: flex;
+}
+
+
 .tasklist {
     padding: .1em;
     padding-bottom: 1em;
@@ -45,26 +63,32 @@ form > * {
     display: flex;
     flex-direction: row;
     padding: .25em;
+    flex-wrap: wrap;
 }
 
 .task {
+    display: flex;
     padding-left: .5em;
     justify-content: center;
+    flex-wrap: wrap;
+    max-width: 90%;
+    text-align: left;
 }
 
-.icons {
+.task-icons {
+    display: none;
+}
+
+.taskbox:hover .task-icons {
     display: flex;
     margin-left: auto;
-    padding-left: 1em;
 }
 
-.icons *{
-    padding: .15em;
-    justify-content: center;
-    align-items: center;
+.taskbox:hover .task{
+    max-width: 77.5%;
 }
 
-.icons > button {
+button {
     border: 0;
 }
 

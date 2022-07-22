@@ -60,7 +60,7 @@ class Task extends Component{
                     <input type="checkbox" id='complete' name='complete' checked={this.state.complete} onChange={this.completeTask}/>
                 </div>
                 <div className='task' id={this.props.id} onBlur={this.finishEdit} onClick={this.startEdit}>{this.state.taskBody}</div>
-                <div className='icons'>
+                <div className='task-icons'>
                     <button onClick={() => this.startEdit(this.props.id)}>
                         <FaEdit/>
                     </button>  

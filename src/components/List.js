@@ -1,4 +1,5 @@
 import React, { Component, createRef } from 'react'
+import { BiTrash } from 'react-icons/bi'
 import TaskList from './TaskList'
 class List extends React.Component{
     constructor(props){
@@ -52,6 +53,10 @@ class List extends React.Component{
         })
     }
 
+    removeGoal = event => {
+        this.props.removeGoal(this.props.id)
+    }
+
     addItem = item => {
         item.preventDefault()
         const newItem = this.state.pendingItem
@@ -89,8 +94,13 @@ class List extends React.Component{
     render(){
         return (
             <div className="list-main">
-                <div className="list-header" onClick={this.startUpdate}>
-                    <h1>{this.state.headerBody}</h1>
+                <div className="list-header">
+                    <div onClick={this.startUpdate}>
+                        <h1>{this.state.headerBody}</h1>
+                    </div>
+                    <div className='header-buttons' onClick={this.removeGoal}>
+                        <BiTrash/>
+                    </div>
                 </div>
                 <div className="list-body">
                     <TaskList entries={this.state.tasks} removeTask={this.removeTask} editTask={this.editTask}/>
@@ -116,6 +126,18 @@ class ListGrid extends Component {
         }
     }
 
+    removeGoal = (item) => {
+        var newGoalsList = this.state.goals
+        newGoalsList.splice(item, 1)
+        for(var i = 0; i < newGoalsList.length; i++){
+            newGoalsList[i].key = i
+        }
+        this.setState({
+            goals: newGoalsList
+        })
+        window.localStorage.setItem("goals", JSON.stringify(newGoalsList))
+    }
+
     editGoal = newGoal => {
         var newGoalsList = this.state.goals
         newGoalsList.splice(newGoal.key, 1, newGoal)
@@ -133,7 +155,7 @@ class ListGrid extends Component {
     }
 
     createList = list => {
-        return <List key={list.key} id={list.key} goal={list.goal} tasks={list.tasks} editGoal={this.editGoal} updateTasks={this.updateTasks}/>
+        return <List key={list.key} id={list.key} goal={list.goal} tasks={list.tasks} editGoal={this.editGoal} updateTasks={this.updateTasks} removeGoal={this.removeGoal}/>
     }
 
     handleInput = input => {
