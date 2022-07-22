@@ -10,21 +10,12 @@ class List extends React.Component{
             goal: this.props.goal,
             headerBody: this.props.goal,
             tasks: this.props.tasks ? this.props.tasks : [],
-            pendingItem: {text: ""}
         }
     }
 
     componentDidUpdate() {
         if(this.ref.current != null)
             this.ref.current.focus()
-    }
-
-    handleInput = event => {
-        const item = event.target.value
-        const pendingItem = {text: item, key: this.state.tasks.length}
-        this.setState({
-            pendingItem: pendingItem,
-        })
     }
 
     finishEdit = event => {
@@ -57,34 +48,7 @@ class List extends React.Component{
         this.props.removeGoal(this.props.id)
     }
 
-    addItem = item => {
-        item.preventDefault()
-        const newItem = this.state.pendingItem
-        if(newItem.text !== ""){
-            const newItems = [...this.state.tasks, newItem]
-            this.setState({
-                tasks: newItems,
-                pendingItem: {text: ""}
-            })
-            this.props.updateTasks(this.props.id, newItems)
-        }
-    }
-
-    removeTask = (item) => {
-        var newTasks = this.state.tasks
-        newTasks.splice(item, 1)
-        for(var i = item; i < this.state.tasks.length; i++){
-            newTasks[i].key = i
-        }
-        this.setState({
-            tasks: newTasks
-        })
-        this.props.updateTasks(this.props.id, newTasks)
-    }
-
-    editTask = (item) => {
-        var newTasks = this.state.tasks
-        newTasks.splice(item.key, 1, item)
+    updateTasks = newTasks => {
         this.setState({
             tasks: newTasks
         })
@@ -103,13 +67,7 @@ class List extends React.Component{
                     </div>
                 </div>
                 <div className="list-body">
-                    <TaskList entries={this.state.tasks} removeTask={this.removeTask} editTask={this.editTask}/>
-                </div>
-                <div className="list-footer">
-                    <form onSubmit={this.addItem}>
-                        <input placeholder="Task" onChange={this.handleInput} value={this.state.pendingItem.text}/>
-                        <button type="submit"> Add Task </button>
-                    </form>
+                    <TaskList tasks={this.state.tasks} removeTask={this.removeTask} editTask={this.editTask} updateTasks={this.updateTasks}/>
                 </div>
             </div>
         );
@@ -169,7 +127,7 @@ class ListGrid extends Component {
     addList = item => {
         item.preventDefault()
         const newItem = this.state.pendingGoal
-        if(newItem.text !== ""){
+        if(newItem.goal !== ""){
             const newItems = [...this.state.goals, newItem]
             this.setState({
                 goals: newItems

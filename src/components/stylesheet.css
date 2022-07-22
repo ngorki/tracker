@@ -23,7 +23,6 @@
     padding: .5em;
     border: 1px solid #ccc;
     border-radius: .5em;
-    width: 40%;
 }
 
 .list-main h1{
@@ -77,6 +76,10 @@ form > * {
 
 .task-icons {
     display: none;
+}
+
+.task-icons button {
+    background: none;
 }
 
 .taskbox:hover .task-icons {

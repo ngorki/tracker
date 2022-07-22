@@ -37,6 +37,7 @@ class Task extends Component{
         } else {
             document.getElementById(this.props.id).classList.remove("complete-task")
         }
+        this.props.completeTask(this.props.id)
     }
 
     startEdit = event => {
@@ -74,15 +75,74 @@ class Task extends Component{
 }
 
 class TaskList extends Component{
+    constructor(props){
+        super(props)
+
+        this.state = {
+            tasks: this.props.tasks ? this.props.tasks : [],
+            pendingItem: {text: ""}
+        }
+    }
+
+    handleInput = event => {
+        const item = event.target.value
+        const pendingItem = {text: item, key: this.state.tasks.length}
+        this.setState({
+            pendingItem: pendingItem,
+        })
+    }
+
+    addTask = item => {
+        item.preventDefault()
+        const newItem = this.state.pendingItem
+        if(newItem.text !== ""){
+            const newItems = [...this.state.tasks, newItem]
+            this.setState({
+                tasks: newItems,
+                pendingItem: {text: ""}
+            })
+            this.props.updateTasks(newItems)
+        }
+    }
+
+    removeTask = (item) => {
+        var newTasks = this.state.tasks
+        newTasks.splice(item, 1)
+        for(var i = item; i < this.state.tasks.length; i++){
+            newTasks[i].key = i
+        }
+        this.setState({
+            tasks: newTasks
+        })
+        this.props.updateTasks(newTasks)
+    }
+
+    editTask = (item) => {
+        var newTasks = this.state.tasks
+        newTasks.splice(item.key, 1, item)
+        this.setState({
+            tasks: newTasks
+        })
+        this.props.updateTasks(newTasks)
+    }
+
     createTask = item => {
-        return <Task id={item.key} task={item.text} key={item.key} removeTask={this.props.removeTask} editTask={this.props.editTask}/>
+        return <Task id={item.key} task={item.text} key={item.key} removeTask={this.removeTask} editTask={this.editTask} completeTask={this.completeTask}/>
     }
 
     render(){
-        const entries = this.props.entries
+        const entries = this.props.tasks
         const list = entries.map(this.createTask)
 
-        return <ul className="tasklist">{list}</ul>
+        return (
+            <div>
+                <ul className="tasklist">{list}</ul>
+                <form onSubmit={this.addTask}>
+                    <input placeholder="Task" onChange={this.handleInput} value={this.state.pendingItem.text}/>
+                    <button type="submit"> Add Task </button>
+                </form>
+            </div>
+        )
     }
 }
 
