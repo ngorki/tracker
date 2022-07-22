@@ -57,7 +57,7 @@ class List extends React.Component{
 
     render(){
         return (
-            <div className="list-main">
+            <div className="list-main" id={"list" + this.props.id}>
                 <div className="list-header">
                     <div onClick={this.startUpdate}>
                         <h1>{this.state.headerBody}</h1>
@@ -67,7 +67,7 @@ class List extends React.Component{
                     </div>
                 </div>
                 <div className="list-body">
-                    <TaskList tasks={this.state.tasks} removeTask={this.removeTask} editTask={this.editTask} updateTasks={this.updateTasks}/>
+                    <TaskList listID={this.props.id} tasks={this.state.tasks} removeTask={this.removeTask} editTask={this.editTask} updateTasks={this.updateTasks}/>
                 </div>
             </div>
         );
@@ -109,7 +109,6 @@ class ListGrid extends Component {
         var goal = this.state.goals.find(currentGoal => currentGoal.key === cgoal)
         goal.tasks = newTasks
         this.editGoal(goal)
-        console.log(this.state.goals)
     }
 
     createList = list => {

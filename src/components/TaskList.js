@@ -33,9 +33,9 @@ class Task extends Component{
             complete: newState
         })
         if(newState){
-            document.getElementById(this.props.id).classList.add("complete-task")
+            document.getElementById(this.props.listID + "," + this.props.id).classList.add("complete-task")
         } else {
-            document.getElementById(this.props.id).classList.remove("complete-task")
+            document.getElementById(this.props.listID + "," + this.props.id).classList.remove("complete-task")
         }
         this.props.completeTask(this.props.id)
     }
@@ -60,7 +60,7 @@ class Task extends Component{
                 <div className='checkbox'>
                     <input type="checkbox" id='complete' name='complete' checked={this.state.complete} onChange={this.completeTask}/>
                 </div>
-                <div className='task' id={this.props.id} onBlur={this.finishEdit} onClick={this.startEdit}>{this.state.taskBody}</div>
+                <div className='task' id={this.props.listID + "," + this.props.id} onBlur={this.finishEdit} onClick={this.startEdit}>{this.state.taskBody}</div>
                 <div className='task-icons'>
                     <button onClick={() => this.startEdit(this.props.id)}>
                         <FaEdit/>
@@ -80,7 +80,7 @@ class TaskList extends Component{
 
         this.state = {
             tasks: this.props.tasks ? this.props.tasks : [],
-            pendingItem: {text: ""}
+            pendingItem: {text: "", complete: false}
         }
     }
 
@@ -126,8 +126,14 @@ class TaskList extends Component{
         this.props.updateTasks(newTasks)
     }
 
+    completeTask = taskID => {
+        var newTask = this.state.tasks[taskID]
+        newTask.complete = true
+        this.editTask(newTask)
+    }
+
     createTask = item => {
-        return <Task id={item.key} task={item.text} key={item.key} removeTask={this.removeTask} editTask={this.editTask} completeTask={this.completeTask}/>
+        return <Task listID={this.props.listID} id={item.key} task={item.text} key={item.key} removeTask={this.removeTask} editTask={this.editTask} completeTask={this.completeTask}/>
     }
 
     render(){
