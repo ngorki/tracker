@@ -6,7 +6,7 @@ import {BiTrash} from 'react-icons/bi'
 class Task extends Component{
     constructor(props){
         super(props)
-        this.ref = createRef();
+        this.ref = createRef()
 
         this.state = {
             taskText: this.props.task,
@@ -40,7 +40,7 @@ class Task extends Component{
     }
 
     startEdit = event => {
-        var edit = <form onSubmit={this.finishEdit}><input ref={this.ref} value={this.state.taskText} onChange={this.updateTask} id={this.props.id}/></form>
+        var edit = <form onSubmit={this.finishEdit}><input  ref={this.ref} value={this.state.taskText} onChange={this.updateTask} id={this.props.id}/></form>
         this.setState({
             taskBody: edit
         })
@@ -59,7 +59,7 @@ class Task extends Component{
                 <div className='checkbox'>
                     <input type="checkbox" id='complete' name='complete' checked={this.state.complete} onChange={this.completeTask}/>
                 </div>
-                <div className='task' id={this.props.id}>{this.state.taskBody}</div>
+                <div className='task' id={this.props.id} onBlur={this.finishEdit} onClick={this.startEdit}>{this.state.taskBody}</div>
                 <div className='icons'>
                     <button onClick={() => this.startEdit(this.props.id)}>
                         <FaEdit/>

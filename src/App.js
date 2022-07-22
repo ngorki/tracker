@@ -1,8 +1,9 @@
 import './App.css';
 import './components/stylesheet.css'
-import ListGrid from './components/List';
+import ListGrid from './components/List'
 
-const goals = [{ goal: "Work" }, { goal: "School" }]
+const unparsedGoals = window.localStorage.getItem("goals")
+const goals = unparsedGoals != null ? JSON.parse(unparsedGoals) : [{ goal: "Work", key: 0}, { goal: "School", key: 1}]
 
 function App() {
   return (

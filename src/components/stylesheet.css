@@ -16,10 +16,21 @@
 }
 
 .list-main {
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
     margin: .5em;
+    padding: .5em;
+    border: 1px solid #ccc;
+    border-radius: .5em;
 }
 
-.list-footer > form > * {
+.list-main h1{
+    font-size: 1.75em;
+    margin: .45em;
+}
+
+form > * {
     margin: .1em;
     border: 0;
     font-size: medium;
@@ -48,7 +59,9 @@
 }
 
 .icons *{
-    padding: .1em;
+    padding: .15em;
+    justify-content: center;
+    align-items: center;
 }
 
 .icons > button {
