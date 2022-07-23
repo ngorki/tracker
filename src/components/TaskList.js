@@ -133,7 +133,8 @@ class TaskList extends Component{
     }
 
     completeTask = taskID => {
-        var newTask = this.state.tasks[taskID]
+        var tasks = this.state.tasks
+        var newTask = tasks[tasks.findIndex(currentTask => currentTask.key === taskID)]
         newTask.complete = !newTask.complete
         this.editTask(newTask)
     }
