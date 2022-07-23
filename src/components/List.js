@@ -1,5 +1,6 @@
 import React, { Component, createRef } from 'react'
 import { BiTrash } from 'react-icons/bi'
+import { v1 } from 'uuid'
 import TaskList from './TaskList'
 class List extends React.Component{
     constructor(props){
@@ -86,10 +87,8 @@ class ListGrid extends Component {
 
     removeGoal = (item) => {
         var newGoalsList = this.state.goals
-        newGoalsList.splice(item, 1)
-        for(var i = 0; i < newGoalsList.length; i++){
-            newGoalsList[i].key = i
-        }
+        var index = newGoalsList.findIndex(goal => goal.key === item)
+        newGoalsList.splice(index, 1)
         this.setState({
             goals: newGoalsList
         })
@@ -98,7 +97,8 @@ class ListGrid extends Component {
 
     editGoal = newGoal => {
         var newGoalsList = this.state.goals
-        newGoalsList.splice(newGoal.key, 1, newGoal)
+        var index = newGoalsList.findIndex(goal => goal.key === newGoal.key)
+        newGoalsList.splice(index, 1, newGoal)
         this.setState({
             goals: newGoalsList
         })
@@ -117,7 +117,7 @@ class ListGrid extends Component {
 
     handleInput = input => {
         const item = input.target.value
-        const pendingItem = {goal: item, key: this.state.goals.length}
+        const pendingItem = {goal: item}
         this.setState({
             pendingGoal: pendingItem,
         })
@@ -125,7 +125,8 @@ class ListGrid extends Component {
 
     addList = item => {
         item.preventDefault()
-        const newItem = this.state.pendingGoal
+        let newItem = this.state.pendingGoal
+        newItem.key = v1()
         if(newItem.goal !== ""){
             const newItems = [...this.state.goals, newItem]
             this.setState({

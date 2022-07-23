@@ -1,6 +1,7 @@
 import {Component, createRef} from 'react'
 import {FaEdit} from 'react-icons/fa'
 import {BiTrash} from 'react-icons/bi'
+import {v1} from 'uuid'
 
 // Task box
 class Task extends Component{
@@ -12,6 +13,12 @@ class Task extends Component{
             taskText: this.props.task,
             taskBody: this.props.task,
             complete: this.props.complete ? this.props.complete : false,
+        }
+    }
+
+    componentDidMount() {
+        if(this.state.complete){
+            document.getElementById(this.props.listID + "," + this.props.id).classList.add("complete-task")
         }
     }
 
@@ -86,7 +93,7 @@ class TaskList extends Component{
 
     handleInput = event => {
         const item = event.target.value
-        const pendingItem = {text: item, key: this.state.tasks.length}
+        const pendingItem = {text: item}
         this.setState({
             pendingItem: pendingItem,
         })
@@ -94,7 +101,7 @@ class TaskList extends Component{
 
     addTask = item => {
         item.preventDefault()
-        const newItem = this.state.pendingItem
+        let newItem = {text: this.state.pendingItem.text, key: v1()}
         if(newItem.text !== ""){
             const newItems = [...this.state.tasks, newItem]
             this.setState({
@@ -105,21 +112,20 @@ class TaskList extends Component{
         }
     }
 
-    removeTask = (item) => {
+    removeTask = (taskID) => {
         var newTasks = this.state.tasks
-        newTasks.splice(item, 1)
-        for(var i = item; i < this.state.tasks.length; i++){
-            newTasks[i].key = i
-        }
+        var index = newTasks.findIndex(task => task.key === taskID)
+        newTasks.splice(index, 1)
         this.setState({
             tasks: newTasks
         })
         this.props.updateTasks(newTasks)
     }
 
-    editTask = (item) => {
+    editTask = (task) => {
         var newTasks = this.state.tasks
-        newTasks.splice(item.key, 1, item)
+        var index = newTasks.findIndex(currTask => currTask.key === task.key)
+        newTasks.splice(index, 1, task)
         this.setState({
             tasks: newTasks
         })
@@ -128,17 +134,17 @@ class TaskList extends Component{
 
     completeTask = taskID => {
         var newTask = this.state.tasks[taskID]
-        newTask.complete = true
+        newTask.complete = !newTask.complete
         this.editTask(newTask)
     }
 
     createTask = item => {
-        return <Task listID={this.props.listID} id={item.key} task={item.text} key={item.key} removeTask={this.removeTask} editTask={this.editTask} completeTask={this.completeTask}/>
+        return <Task listID={this.props.listID} id={item.key} task={item.text} complete={item.complete} key={item.key} removeTask={this.removeTask} editTask={this.editTask} completeTask={this.completeTask}/>
     }
 
     render(){
-        const entries = this.props.tasks
-        const list = entries.map(this.createTask)
+        var entries = this.state.tasks
+        var list = entries.map(this.createTask)
 
         return (
             <div>
