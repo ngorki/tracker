@@ -1,7 +1,7 @@
 import {Component, createRef} from 'react'
 import {FaEdit} from 'react-icons/fa'
 import {BiTrash} from 'react-icons/bi'
-import {v1} from 'uuid'
+import {v4} from 'uuid'
 
 // Task box
 class Task extends Component{
@@ -58,12 +58,22 @@ class Task extends Component{
         this.setState({
             taskBody: this.state.taskText
         })
-        this.props.editTask({text: this.state.taskText, key: this.props.id})
+        this.props.editTask({text: this.state.taskText, key: this.props.id, index: this.props.index})
+    }
+
+    onDragStart = event => {
+        this.props.onDragStart(this.props.index)
+        event.dataTransfer.setData("text/html", "")
+    }
+
+    onDragOver = event => {
+        this.props.onDragOver(this.props.index)
+        event.preventDefault()
     }
 
     render(){
         return(
-            <div className="taskbox">
+            <div className="taskbox" draggable="true" onDragStart={this.onDragStart} onDragOver={this.onDragOver} onDrop={this.props.onDrop}>
                 <div className='checkbox'>
                     <input type="checkbox" id='complete' name='complete' checked={this.state.complete} onChange={this.completeTask}/>
                 </div>
@@ -72,7 +82,7 @@ class Task extends Component{
                     <button onClick={() => this.startEdit(this.props.id)}>
                         <FaEdit/>
                     </button>  
-                    <button onClick={() => this.props.removeTask(this.props.id)}>
+                    <button onClick={() => this.props.removeTask(this.props.index)}>
                         <BiTrash/>
                     </button>
                 </div>
@@ -87,7 +97,13 @@ class TaskList extends Component{
 
         this.state = {
             tasks: this.props.tasks ? this.props.tasks : [],
-            pendingItem: {text: "", complete: false}
+            pendingItem: {text: "", complete: false},
+
+            draggedFrom: null,
+            draggedTo: null,
+            isDragging: false,
+            originalOrder: [],
+            updatedOrder: [],
         }
     }
 
@@ -101,7 +117,7 @@ class TaskList extends Component{
 
     addTask = item => {
         item.preventDefault()
-        let newItem = {text: this.state.pendingItem.text, key: v1()}
+        let newItem = {text: this.state.pendingItem.text, key: v4(), index: this.state.tasks.length}
         if(newItem.text !== ""){
             const newItems = [...this.state.tasks, newItem]
             this.setState({
@@ -112,10 +128,9 @@ class TaskList extends Component{
         }
     }
 
-    removeTask = (taskID) => {
+    removeTask = (taskIndex) => {
         var newTasks = this.state.tasks
-        var index = newTasks.findIndex(task => task.key === taskID)
-        newTasks.splice(index, 1)
+        newTasks.splice(taskIndex, 1)
         this.setState({
             tasks: newTasks
         })
@@ -124,8 +139,7 @@ class TaskList extends Component{
 
     editTask = (task) => {
         var newTasks = this.state.tasks
-        var index = newTasks.findIndex(currTask => currTask.key === task.key)
-        newTasks.splice(index, 1, task)
+        newTasks.splice(task.index, 1, task)
         this.setState({
             tasks: newTasks
         })
@@ -139,8 +153,53 @@ class TaskList extends Component{
         this.editTask(newTask)
     }
 
-    createTask = item => {
-        return <Task listID={this.props.listID} id={item.key} task={item.text} complete={item.complete} key={item.key} removeTask={this.removeTask} editTask={this.editTask} completeTask={this.completeTask}/>
+    onDragStart = index => {
+        this.setState({
+            draggedFrom: index,
+            isDragging: true,
+            originalOrder: this.state.tasks
+        })
+    }
+
+    onDragOver = index => {
+        let newList = this.state.originalOrder
+        const draggedFrom = this.state.draggedFrom
+        const draggedTo = index
+        const draggedTask = newList[draggedFrom]
+        const remainingTasks = newList.filter(task => task.index !== draggedFrom)
+
+        newList = [
+            ...remainingTasks.slice(0, draggedTo),
+            draggedTask,
+            ...remainingTasks.slice(draggedTo)
+        ]
+
+        if(draggedTo != this.state.draggedTo){
+            this.setState({
+                updatedOrder: newList, 
+                draggedTo: draggedTo
+            })
+        }
+    }
+
+    onDrop = () => {
+        let newOrder = this.state.updatedOrder
+        for(let i = 0; i < newOrder.length; i++){
+            newOrder[i].index = i
+        }
+        this.setState({
+            tasks: this.state.updatedOrder,
+            draggedFrom: null,
+            draggedTo: null,
+            isDragging: false
+        })
+        this.props.updateTasks(this.state.updatedOrder)
+    }
+
+    createTask = (task, index)  => {
+        return <Task index={index} listID={this.props.listID} id={task.key} task={task.text} complete={task.complete} key={task.key} 
+            removeTask={this.removeTask} editTask={this.editTask} completeTask={this.completeTask}
+            onDragStart={this.onDragStart} onDragOver={this.onDragOver} onDrop={this.onDrop} />
     }
 
     render(){
