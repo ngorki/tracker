@@ -13,6 +13,8 @@ class Task extends Component{
             taskText: this.props.task,
             taskBody: this.props.task,
             complete: this.props.complete ? this.props.complete : false,
+            dragged: false,
+            draggedOver: false,
         }
     }
 
@@ -27,14 +29,14 @@ class Task extends Component{
             this.ref.current.focus()
     }
 
-    updateTask = event => {
+    updateTask = (event) => {
         this.setState({
             taskText: event.target.value,
             taskBody: <form onSubmit={this.finishEdit}><input ref={this.ref} value={event.target.value} onChange={this.updateTask} id={this.props.id}/></form>
         })
     }
 
-    completeTask = event => {
+    completeTask = (event) => {
         const newState = !this.state.complete
         this.setState({
             complete: newState
@@ -47,33 +49,53 @@ class Task extends Component{
         this.props.completeTask(this.props.id)
     }
 
-    startEdit = event => {
+    startEdit = (event) => {
         var edit = <form onSubmit={this.finishEdit}><input  ref={this.ref} value={this.state.taskText} onChange={this.updateTask} id={this.props.id}/></form>
         this.setState({
             taskBody: edit
         })
     }
 
-    finishEdit = event => {
+    finishEdit = (event) => {
         this.setState({
             taskBody: this.state.taskText
         })
         this.props.editTask({text: this.state.taskText, key: this.props.id, index: this.props.index})
     }
 
-    onDragStart = event => {
+    onDragStart = (event) => {
+        this.setState({
+            dragged: true
+        })
         this.props.onDragStart(this.props.index)
         event.dataTransfer.setData("text/html", "")
     }
 
-    onDragOver = event => {
+    onDragOver = (event) => {
+        this.setState({
+            draggedOver: true,
+        })
         this.props.onDragOver(this.props.index)
         event.preventDefault()
     }
 
+    onDragLeave = (event) => {
+        this.setState({
+            draggedOver: false,
+        })
+    }
+
+    onDrop = (event) => {
+        this.setState({
+            dragged: false,
+        })
+        this.onDragLeave()
+        this.props.onDrop()
+    }
+
     render(){
         return(
-            <div className="taskbox" draggable="true" onDragStart={this.onDragStart} onDragOver={this.onDragOver} onDrop={this.props.onDrop}>
+            <div className={"taskbox" + (this.state.draggedOver ? " dragArea" : "")} draggable="true" onDragStart={this.onDragStart} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave} onDrop={this.onDrop}>
                 <div className='checkbox'>
                     <input type="checkbox" id='complete' name='complete' checked={this.state.complete} onChange={this.completeTask}/>
                 </div>
@@ -107,7 +129,7 @@ class TaskList extends Component{
         }
     }
 
-    handleInput = event => {
+    handleInput = (event) => {
         const item = event.target.value
         const pendingItem = {text: item}
         this.setState({
@@ -115,7 +137,7 @@ class TaskList extends Component{
         })
     }
 
-    addTask = item => {
+    addTask = (item) => {
         item.preventDefault()
         let newItem = {text: this.state.pendingItem.text, key: v4(), index: this.state.tasks.length}
         if(newItem.text !== ""){
@@ -146,22 +168,23 @@ class TaskList extends Component{
         this.props.updateTasks(newTasks)
     }
 
-    completeTask = taskID => {
+    completeTask = (taskID) => {
         var tasks = this.state.tasks
         var newTask = tasks[tasks.findIndex(currentTask => currentTask.key === taskID)]
         newTask.complete = !newTask.complete
         this.editTask(newTask)
     }
 
-    onDragStart = index => {
+    onDragStart = (index) => {
         this.setState({
             draggedFrom: index,
             isDragging: true,
             originalOrder: this.state.tasks
         })
+        this.props.dragTask()
     }
 
-    onDragOver = index => {
+    onDragOver = (index) => {
         let newList = this.state.originalOrder
         const draggedFrom = this.state.draggedFrom
         const draggedTo = index
@@ -194,6 +217,7 @@ class TaskList extends Component{
             isDragging: false
         })
         this.props.updateTasks(this.state.updatedOrder)
+        this.props.endDragTask()
     }
 
     createTask = (task, index)  => {
